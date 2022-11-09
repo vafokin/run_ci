@@ -1,0 +1,17 @@
+stages:
+  - run
+
+run:
+  stage: run
+  tags:
+    - vadeb11_runner
+  when: manual
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $REGISTRY
+  script:
+    - apk add curl
+    - echo "PRIVATE-TOKEN:\ 'TOKEN'" | tr -d '\' > token.txt
+    - curl --location --output artifacts.zip --header @token.txt "https://gitlab.com/api/v4/projects/37587894/jobs/artifacts/dev/download?job=${BRANCH}"
+    - unzip artifacts.zip
+    - docker-compose up -d
+
